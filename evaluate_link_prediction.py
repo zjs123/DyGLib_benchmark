@@ -65,7 +65,7 @@ if __name__ == "__main__":
 
     # we separately evaluate EdgeBank, since EdgeBank does not contain any trainable parameters and has a different evaluation pipeline
     if args.model_name == 'EdgeBank':
-        evaluate_edge_bank_link_prediction(args=args, train_data=train_data, val_data=val_data, test_idx_data_loader=test_idx_data_loader,
+        evaluate_edge_bank_retrival(args=args, train_data=train_data, val_data=val_data, test_idx_data_loader=test_idx_data_loader,
                                            test_neg_edge_sampler=test_neg_edge_sampler, test_data=test_data)
 
     else:
