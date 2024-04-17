@@ -267,51 +267,61 @@ if __name__ == "__main__":
                     # detach the memories and raw messages of nodes in the memory bank after each batch, so we don't back propagate to the start of time
                     model[0].memory_bank.detach_memory_bank()
 
-            if args.model_name in ['JODIE', 'DyRep', 'TGN']:
-                # backup memory bank after training so it can be used for new validation nodes
-                train_backup_memory_bank = model[0].memory_bank.backup_memory_bank()
+            if (epoch + 1) % args.test_interval_epochs == 0:
+                if args.model_name in ['JODIE', 'DyRep', 'TGN']:
+                    # backup memory bank after training so it can be used for new validation nodes
+                    train_backup_memory_bank = model[0].memory_bank.backup_memory_bank()
 
-            val_losses, val_metrics = evaluate_model_link_prediction(model_name=args.model_name,
-                                                                     model=model,
-                                                                     neighbor_sampler=full_neighbor_sampler,
-                                                                     evaluate_idx_data_loader=val_idx_data_loader,
-                                                                     evaluate_neg_edge_sampler=val_neg_edge_sampler,
-                                                                     evaluate_data=val_data,
-                                                                     loss_func=loss_func,
-                                                                     num_neighbors=args.num_neighbors,
-                                                                     time_gap=args.time_gap)
+                val_losses, val_metrics = evaluate_model_link_prediction(model_name=args.model_name,
+                                                                        model=model,
+                                                                        neighbor_sampler=full_neighbor_sampler,
+                                                                        evaluate_idx_data_loader=val_idx_data_loader,
+                                                                        evaluate_neg_edge_sampler=val_neg_edge_sampler,
+                                                                        evaluate_data=val_data,
+                                                                        loss_func=loss_func,
+                                                                        num_neighbors=args.num_neighbors,
+                                                                        time_gap=args.time_gap)
 
-            if args.model_name in ['JODIE', 'DyRep', 'TGN']:
-                # backup memory bank after validating so it can be used for testing nodes (since test edges are strictly later in time than validation edges)
-                val_backup_memory_bank = model[0].memory_bank.backup_memory_bank()
+                if args.model_name in ['JODIE', 'DyRep', 'TGN']:
+                    # backup memory bank after validating so it can be used for testing nodes (since test edges are strictly later in time than validation edges)
+                    val_backup_memory_bank = model[0].memory_bank.backup_memory_bank()
 
-                # reload training memory bank for new validation nodes
-                model[0].memory_bank.reload_memory_bank(train_backup_memory_bank)
+                    # reload training memory bank for new validation nodes
+                    model[0].memory_bank.reload_memory_bank(train_backup_memory_bank)
 
-            new_node_val_losses, new_node_val_metrics = evaluate_model_link_prediction(model_name=args.model_name,
-                                                                                       model=model,
-                                                                                       neighbor_sampler=full_neighbor_sampler,
-                                                                                       evaluate_idx_data_loader=new_node_val_idx_data_loader,
-                                                                                       evaluate_neg_edge_sampler=new_node_val_neg_edge_sampler,
-                                                                                       evaluate_data=new_node_val_data,
-                                                                                       loss_func=loss_func,
-                                                                                       num_neighbors=args.num_neighbors,
-                                                                                       time_gap=args.time_gap)
+                new_node_val_losses, new_node_val_metrics = evaluate_model_link_prediction(model_name=args.model_name,
+                                                                                        model=model,
+                                                                                        neighbor_sampler=full_neighbor_sampler,
+                                                                                        evaluate_idx_data_loader=new_node_val_idx_data_loader,
+                                                                                        evaluate_neg_edge_sampler=new_node_val_neg_edge_sampler,
+                                                                                        evaluate_data=new_node_val_data,
+                                                                                        loss_func=loss_func,
+                                                                                        num_neighbors=args.num_neighbors,
+                                                                                        time_gap=args.time_gap)
 
-            if args.model_name in ['JODIE', 'DyRep', 'TGN']:
-                # reload validation memory bank for testing nodes or saving models
-                # note that since model treats memory as parameters, we need to reload the memory to val_backup_memory_bank for saving models
-                model[0].memory_bank.reload_memory_bank(val_backup_memory_bank)
+                if args.model_name in ['JODIE', 'DyRep', 'TGN']:
+                    # reload validation memory bank for testing nodes or saving models
+                    # note that since model treats memory as parameters, we need to reload the memory to val_backup_memory_bank for saving models
+                    model[0].memory_bank.reload_memory_bank(val_backup_memory_bank)
 
-            logger.info(f'Epoch: {epoch + 1}, learning rate: {optimizer.param_groups[0]["lr"]}, train loss: {np.mean(train_losses):.4f}')
-            for metric_name in train_metrics[0].keys():
-                logger.info(f'train {metric_name}, {np.mean([train_metric[metric_name] for train_metric in train_metrics]):.4f}')
-            logger.info(f'validate loss: {np.mean(val_losses):.4f}')
-            for metric_name in val_metrics[0].keys():
-                logger.info(f'validate {metric_name}, {np.mean([val_metric[metric_name] for val_metric in val_metrics]):.4f}')
-            logger.info(f'new node validate loss: {np.mean(new_node_val_losses):.4f}')
-            for metric_name in new_node_val_metrics[0].keys():
-                logger.info(f'new node validate {metric_name}, {np.mean([new_node_val_metric[metric_name] for new_node_val_metric in new_node_val_metrics]):.4f}')
+                logger.info(f'Epoch: {epoch + 1}, learning rate: {optimizer.param_groups[0]["lr"]}, train loss: {np.mean(train_losses):.4f}')
+                for metric_name in train_metrics[0].keys():
+                    logger.info(f'train {metric_name}, {np.mean([train_metric[metric_name] for train_metric in train_metrics]):.4f}')
+                logger.info(f'validate loss: {np.mean(val_losses):.4f}')
+                for metric_name in val_metrics[0].keys():
+                    logger.info(f'validate {metric_name}, {np.mean([val_metric[metric_name] for val_metric in val_metrics]):.4f}')
+                logger.info(f'new node validate loss: {np.mean(new_node_val_losses):.4f}')
+                for metric_name in new_node_val_metrics[0].keys():
+                    logger.info(f'new node validate {metric_name}, {np.mean([new_node_val_metric[metric_name] for new_node_val_metric in new_node_val_metrics]):.4f}')
+                
+                # select the best model based on all the validate metrics
+                val_metric_indicator = []
+                for metric_name in val_metrics[0].keys():
+                    val_metric_indicator.append((metric_name, np.mean([val_metric[metric_name] for val_metric in val_metrics]), True))
+                early_stop = early_stopping.step(val_metric_indicator, model)
+
+                if early_stop:
+                    break
 
             # perform testing once after test_interval_epochs
             if (epoch + 1) % args.test_interval_epochs == 0:
@@ -350,15 +360,6 @@ if __name__ == "__main__":
                 logger.info(f'new node test loss: {np.mean(new_node_test_losses):.4f}')
                 for metric_name in new_node_test_metrics[0].keys():
                     logger.info(f'new node test {metric_name}, {np.mean([new_node_test_metric[metric_name] for new_node_test_metric in new_node_test_metrics]):.4f}')
-
-            # select the best model based on all the validate metrics
-            val_metric_indicator = []
-            for metric_name in val_metrics[0].keys():
-                val_metric_indicator.append((metric_name, np.mean([val_metric[metric_name] for val_metric in val_metrics]), True))
-            early_stop = early_stopping.step(val_metric_indicator, model)
-
-            if early_stop:
-                break
 
         # load the best model
         early_stopping.load_checkpoint(model)
