@@ -1,6 +1,6 @@
 import torch
 import numpy as np
-from sklearn.metrics import precision_score
+from sklearn.metrics import precision_score, recall_score, f1_score
 from sklearn.metrics import average_precision_score, roc_auc_score
 
 def get_rank(target_score, candidate_score):
@@ -106,6 +106,7 @@ def get_edge_classification_metrics(predicts: torch.Tensor, labels: torch.Tensor
     labels = labels.cpu().numpy()
 
     P_macro = precision_score(labels, predicts, average="macro")
-    roc_auc = roc_auc_score(y_true=labels, y_score=predicts)
+    R_macro = recall_score(labels, predicts, average="macro")
+    F_macro = f1_score(labels, predicts, average="macro")
 
-    return {'p_macro': P_macro, 'F-score': }
+    return {'p_macro': P_macro, 'R_macro': R_macro, 'F_macro': F_macro}
