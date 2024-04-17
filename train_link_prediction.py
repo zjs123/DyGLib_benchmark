@@ -369,7 +369,7 @@ if __name__ == "__main__":
 
         # the saved best model of memory-based models cannot perform validation since the stored memory has been updated by validation data
         if args.model_name not in ['JODIE', 'DyRep', 'TGN']:
-            val_losses, val_metrics = evaluate_model_retrival(model_name=args.model_name,
+            val_losses, val_metrics = evaluate_model_link_prediction(model_name=args.model_name,
                                                                      model=model,
                                                                      neighbor_sampler=full_neighbor_sampler,
                                                                      evaluate_idx_data_loader=val_idx_data_loader,
@@ -379,7 +379,7 @@ if __name__ == "__main__":
                                                                      num_neighbors=args.num_neighbors,
                                                                      time_gap=args.time_gap)
 
-            new_node_val_losses, new_node_val_metrics = evaluate_model_retrival(model_name=args.model_name,
+            new_node_val_losses, new_node_val_metrics = evaluate_model_link_prediction(model_name=args.model_name,
                                                                                        model=model,
                                                                                        neighbor_sampler=full_neighbor_sampler,
                                                                                        evaluate_idx_data_loader=new_node_val_idx_data_loader,
@@ -393,7 +393,7 @@ if __name__ == "__main__":
             # the memory in the best model has seen the validation edges, we need to backup the memory for new testing nodes
             val_backup_memory_bank = model[0].memory_bank.backup_memory_bank()
 
-        test_losses, test_metrics = evaluate_model_retrival(model_name=args.model_name,
+        test_losses, test_metrics = evaluate_model_link_prediction(model_name=args.model_name,
                                                                    model=model,
                                                                    neighbor_sampler=full_neighbor_sampler,
                                                                    evaluate_idx_data_loader=test_idx_data_loader,
