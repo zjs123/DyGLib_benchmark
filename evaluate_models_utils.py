@@ -191,13 +191,13 @@ def evaluate_model_retrival(model_name: str, model: nn.Module, neighbor_sampler:
                 evaluate_data.node_interact_times[evaluate_data_indices], evaluate_data.edge_ids[evaluate_data_indices]
 
             if evaluate_neg_edge_sampler.negative_sample_strategy != 'random':
-                _, all_batch_neg_dst_node_ids = evaluate_neg_edge_sampler.sample(size=10,
+                _, all_batch_neg_dst_node_ids = evaluate_neg_edge_sampler.sample(size=1000,
                                                                                 batch_src_node_ids=batch_src_node_ids,
                                                                                 batch_dst_node_ids=batch_dst_node_ids,
                                                                                 current_batch_start_time=batch_node_interact_times[0],
                                                                                 current_batch_end_time=batch_node_interact_times[-1])
             else:
-                _, all_batch_neg_dst_node_ids = evaluate_neg_edge_sampler.sample(size=10)
+                _, all_batch_neg_dst_node_ids = evaluate_neg_edge_sampler.sample(size=1000)
             batch_neg_src_node_ids = batch_src_node_ids
 
             # we need to compute for positive and negative edges respectively, because the new sampling strategy (for evaluation) allows the negative source nodes to be
@@ -489,7 +489,7 @@ def evaluate_model_edge_classification(model_name: str, model: nn.Module, neighb
     return evaluate_total_loss, evaluate_metrics
 
 
-def evaluate_edge_bank_link_prediction(args: argparse.Namespace, train_data: Data, val_data: Data, test_idx_data_loader: DataLoader,
+def evaluate_edge_bank_retrival(args: argparse.Namespace, train_data: Data, val_data: Data, test_idx_data_loader: DataLoader,
                                        test_neg_edge_sampler: NegativeEdgeSampler, test_data: Data):
     """
     evaluate the EdgeBank model for link prediction
@@ -560,13 +560,13 @@ def evaluate_edge_bank_link_prediction(args: argparse.Namespace, train_data: Dat
                 test_data.node_interact_times[test_data_indices]
 
             if test_neg_edge_sampler.negative_sample_strategy != 'random':
-                _, all_batch_neg_dst_node_ids = test_neg_edge_sampler.sample(size=10,
+                _, all_batch_neg_dst_node_ids = test_neg_edge_sampler.sample(size=1000,
                                                                             batch_src_node_ids=batch_src_node_ids,
                                                                             batch_dst_node_ids=batch_dst_node_ids,
                                                                             current_batch_start_time=batch_node_interact_times[0],
                                                                             current_batch_end_time=batch_node_interact_times[-1])
             else:
-                _, all_batch_neg_dst_node_ids = test_neg_edge_sampler.sample(size=10)
+                _, all_batch_neg_dst_node_ids = test_neg_edge_sampler.sample(size=1000)
             batch_neg_src_node_ids = batch_src_node_ids
 
             positive_edges = (batch_src_node_ids, batch_dst_node_ids)
