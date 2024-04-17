@@ -231,23 +231,33 @@ if __name__ == "__main__":
             train_y_trues = torch.cat(train_y_trues, dim=0)
             train_y_predicts = torch.cat(train_y_predicts, dim=0)
 
-            train_metrics = get_edge_classification_metrics(predicts=train_y_predicts, labels=train_y_trues)
+            if (epoch + 1) % args.test_interval_epochs == 0:
+                train_metrics = get_edge_classification_metrics(predicts=train_y_predicts, labels=train_y_trues)
 
-            val_total_loss, val_metrics = evaluate_model_edge_classification(model_name=args.model_name,
-                                                                             model=model,
-                                                                             neighbor_sampler=full_neighbor_sampler,
-                                                                             evaluate_idx_data_loader=val_idx_data_loader,
-                                                                             evaluate_data=val_data,
-                                                                             loss_func=loss_func,
-                                                                             num_neighbors=args.num_neighbors,
-                                                                             time_gap=args.time_gap)
+                val_total_loss, val_metrics = evaluate_model_edge_classification(model_name=args.model_name,
+                                                                                model=model,
+                                                                                neighbor_sampler=full_neighbor_sampler,
+                                                                                evaluate_idx_data_loader=val_idx_data_loader,
+                                                                                evaluate_data=val_data,
+                                                                                loss_func=loss_func,
+                                                                                num_neighbors=args.num_neighbors,
+                                                                                time_gap=args.time_gap)
 
-            logger.info(f'Epoch: {epoch + 1}, learning rate: {optimizer.param_groups[0]["lr"]}, train loss: {train_total_loss:.4f}')
-            for metric_name in train_metrics.keys():
-                logger.info(f'train {metric_name}, {train_metrics[metric_name]:.4f}')
-            logger.info(f'validate loss: {val_total_loss:.4f}')
-            for metric_name in val_metrics.keys():
-                logger.info(f'validate {metric_name}, {val_metrics[metric_name]:.4f}')
+                logger.info(f'Epoch: {epoch + 1}, learning rate: {optimizer.param_groups[0]["lr"]}, train loss: {train_total_loss:.4f}')
+                for metric_name in train_metrics.keys():
+                    logger.info(f'train {metric_name}, {train_metrics[metric_name]:.4f}')
+                logger.info(f'validate loss: {val_total_loss:.4f}')
+                for metric_name in val_metrics.keys():
+                    logger.info(f'validate {metric_name}, {val_metrics[metric_name]:.4f}')
+
+                # select the best model based on all the validate metrics
+                val_metric_indicator = []
+                for metric_name in val_metrics.keys():
+                    val_metric_indicator.append((metric_name, val_metrics[metric_name], True))
+                early_stop = early_stopping.step(val_metric_indicator, model)
+
+                if early_stop:
+                    break
 
             # perform testing once after test_interval_epochs
             if (epoch + 1) % args.test_interval_epochs == 0:
@@ -272,15 +282,6 @@ if __name__ == "__main__":
                 logger.info(f'test loss: {test_total_loss:.4f}')
                 for metric_name in test_metrics.keys():
                     logger.info(f'test {metric_name}, {test_metrics[metric_name]:.4f}')
-
-            # select the best model based on all the validate metrics
-            val_metric_indicator = []
-            for metric_name in val_metrics.keys():
-                val_metric_indicator.append((metric_name, val_metrics[metric_name], True))
-            early_stop = early_stopping.step(val_metric_indicator, model)
-
-            if early_stop:
-                break
 
         # load the best model
         early_stopping.load_checkpoint(model)
