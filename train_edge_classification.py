@@ -31,7 +31,6 @@ if __name__ == "__main__":
 
     # get arguments
     args = get_edge_classification_args()
-    args.device = 'cpu'
 
     # get data for training, validation and testing
     node_raw_features, edge_raw_features, full_data, train_data, val_data, test_data, new_node_val_data, new_node_test_data, cat_number = \
