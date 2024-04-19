@@ -191,13 +191,13 @@ def evaluate_model_retrival(model_name: str, model: nn.Module, neighbor_sampler:
                 evaluate_data.node_interact_times[evaluate_data_indices], evaluate_data.edge_ids[evaluate_data_indices]
 
             if evaluate_neg_edge_sampler.negative_sample_strategy != 'random':
-                _, all_batch_neg_dst_node_ids = evaluate_neg_edge_sampler.sample(size=1000,
+                _, all_batch_neg_dst_node_ids = evaluate_neg_edge_sampler.sample(size=100,
                                                                                 batch_src_node_ids=batch_src_node_ids,
                                                                                 batch_dst_node_ids=batch_dst_node_ids,
                                                                                 current_batch_start_time=batch_node_interact_times[0],
                                                                                 current_batch_end_time=batch_node_interact_times[-1])
             else:
-                _, all_batch_neg_dst_node_ids = evaluate_neg_edge_sampler.sample(size=1000)
+                _, all_batch_neg_dst_node_ids = evaluate_neg_edge_sampler.sample(size=100)
             batch_neg_src_node_ids = batch_src_node_ids
 
             # we need to compute for positive and negative edges respectively, because the new sampling strategy (for evaluation) allows the negative source nodes to be
@@ -467,7 +467,7 @@ def evaluate_model_edge_classification(model_name: str, model: nn.Module, neighb
             else:
                 raise ValueError(f"Wrong value for model_name {model_name}!")
             # get predicted probabilities, shape (batch_size, )
-            predicts = model[1](x_1=batch_src_node_embeddings, x_2=batch_dst_node_embeddings)
+            predicts = model[1](x_1=batch_src_node_embeddings, x_2 = batch_dst_node_embeddings, rel_embs = model[0].edge_raw_features)
             pred_labels = torch.max(predicts, dim=1)[1]
             labels = torch.from_numpy(batch_labels).int().type(torch.LongTensor).to(predicts.device)
 
@@ -489,7 +489,7 @@ def evaluate_model_edge_classification(model_name: str, model: nn.Module, neighb
     return evaluate_total_loss, evaluate_metrics
 
 
-def evaluate_edge_bank_retrival(args: argparse.Namespace, train_data: Data, val_data: Data, test_idx_data_loader: DataLoader,
+def evaluate_edge_bank_link_prediction(args: argparse.Namespace, train_data: Data, val_data: Data, test_idx_data_loader: DataLoader,
                                        test_neg_edge_sampler: NegativeEdgeSampler, test_data: Data):
     """
     evaluate the EdgeBank model for link prediction
@@ -560,13 +560,13 @@ def evaluate_edge_bank_retrival(args: argparse.Namespace, train_data: Data, val_
                 test_data.node_interact_times[test_data_indices]
 
             if test_neg_edge_sampler.negative_sample_strategy != 'random':
-                _, all_batch_neg_dst_node_ids = test_neg_edge_sampler.sample(size=1000,
+                _, all_batch_neg_dst_node_ids = test_neg_edge_sampler.sample(size=100,
                                                                             batch_src_node_ids=batch_src_node_ids,
                                                                             batch_dst_node_ids=batch_dst_node_ids,
                                                                             current_batch_start_time=batch_node_interact_times[0],
                                                                             current_batch_end_time=batch_node_interact_times[-1])
             else:
-                _, all_batch_neg_dst_node_ids = test_neg_edge_sampler.sample(size=1000)
+                _, all_batch_neg_dst_node_ids = test_neg_edge_sampler.sample(size=100)
             batch_neg_src_node_ids = batch_src_node_ids
 
             positive_edges = (batch_src_node_ids, batch_dst_node_ids)
