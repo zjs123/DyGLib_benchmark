@@ -103,12 +103,13 @@ class MLPClassifier_edge(nn.Module):
         :param dropout: float, dropout rate
         """
         super().__init__()
-        self.fc1 = nn.Linear(2*input_dim, input_dim)
-        self.fc2 = nn.Linear(input_dim, cat_num)
+        self.fc1 = nn.Linear(2*input_dim, input_dim, bias = True)
+        self.fc2 = nn.Linear(input_dim, input_dim, bias = True)
+        self.fc3 = nn.Linear(input_dim, cat_num, bias = True)
         self.act = nn.ReLU()
         self.dropout = nn.Dropout(dropout)
 
-    def forward(self, x_1: torch.Tensor, x_2: torch.Tensor):
+    def forward(self, x_1: torch.Tensor, x_2: torch.Tensor, rel_embs: torch.Tensor):
         """
         multi-layer perceptron classifier forward process
         :param x: Tensor, shape (*, input_dim)
@@ -116,10 +117,17 @@ class MLPClassifier_edge(nn.Module):
         """
         # Tensor, shape (*, input_dim)
         x = self.dropout(self.act(self.fc1(torch.cat([x_1, x_2], dim=1))))
+        x = self.dropout(self.act(self.fc2(x)))
+
+        '''
         # Tensor, shape (*, num_cat)
-        x = self.fc2(x)
+        x = self.dropout(self.act(self.fc2(x)))
         #pred = torch.max(x, dim=1)[1]
-        return x
+        return self.fc3(x)
+        '''
+        #x = F.normalize(x, 2, -1)
+        #rel_embs = F.normalize(rel_embs, 2, -1)
+        return self.fc3(x)
 
 
 class MultiHeadAttention(nn.Module):
