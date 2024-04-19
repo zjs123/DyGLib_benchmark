@@ -65,7 +65,7 @@ if __name__ == "__main__":
 
     # we separately evaluate EdgeBank, since EdgeBank does not contain any trainable parameters and has a different evaluation pipeline
     if args.model_name == 'EdgeBank':
-        evaluate_edge_bank_retrival(args=args, train_data=train_data, val_data=val_data, test_idx_data_loader=test_idx_data_loader,
+        evaluate_edge_bank_link_prediction(args=args, train_data=train_data, val_data=val_data, test_idx_data_loader=test_idx_data_loader,
                                            test_neg_edge_sampler=test_neg_edge_sampler, test_data=test_data)
 
     else:
@@ -76,8 +76,12 @@ if __name__ == "__main__":
             set_random_seed(seed=run)
 
             args.seed = run
-            args.load_model_name = f'{args.model_name}_seed{args.seed}'
-            args.save_result_name = f'{args.negative_sample_strategy}_negative_sampling_{args.model_name}_seed{args.seed}'
+            try:
+                args.load_model_name = f'{args.model_name}_seed{args.seed}{args.use_feature}'
+                args.save_result_name = f'{args.negative_sample_strategy}_negative_sampling_{args.model_name}_seed{args.seed}{args.use_feature}'
+            except:
+                args.load_model_name = f'{args.model_name}_seed{0}{args.use_feature}'
+                args.save_result_name = f'{args.negative_sample_strategy}_negative_sampling_{args.model_name}_seed{0}{args.use_feature}'
 
             # set up logger
             logging.basicConfig(level=logging.INFO)
