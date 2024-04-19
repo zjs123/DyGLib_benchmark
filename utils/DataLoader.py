@@ -77,7 +77,7 @@ def get_link_prediction_data(dataset_name: str, val_ratio: float, test_ratio: fl
     # Load data and train val test split
     graph_df = pd.read_csv('../DyLink_Datasets/{}/edge_list.csv'.format(dataset_name, dataset_name))
     node_num = max(graph_df['u'].max(), graph_df['i'].max()) + 1
-    rel_num = graph_df['r'].max()
+    rel_num = graph_df['r'].max() + 1
     if graph_df['label'].min() != 0:
         graph_df.label -= 1
     if 'GDELT' in dataset_name:
