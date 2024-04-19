@@ -11,10 +11,10 @@ def get_link_prediction_args(is_evaluation: bool = False):
     """
     # arguments
     parser = argparse.ArgumentParser('Interface for the link prediction task')
-    parser.add_argument('--dataset_name', type=str, help='dataset to be used', default='GDELT',
+    parser.add_argument('--dataset_name', type=str, help='dataset to be used', default='ICEWS1819',
                         choices=['Amazon_movies', 'Enron', 'GDELT', 'Googlemap_CT', 'ICEWS1819', 'Stack_elec', 'Stack_english', 'Stack_ubuntu', 'Yelp', 'Cite_HepTH'])
     parser.add_argument('--batch_size', type=int, default=1024, help='batch size')
-    parser.add_argument('--model_name', type=str, default='DyGFormer', help='name of the model, note that EdgeBank is only applicable for evaluation',
+    parser.add_argument('--model_name', type=str, default='JODIE', help='name of the model, note that EdgeBank is only applicable for evaluation',
                         choices=['JODIE', 'DyRep', 'TGAT', 'TGN', 'CAWN', 'EdgeBank', 'TCL', 'GraphMixer', 'DyGFormer'])
     parser.add_argument('--gpu', type=int, default=0, help='number of gpu to use')
     parser.add_argument('--num_neighbors', type=int, default=20, help='number of neighbors to sample for each node')
@@ -41,14 +41,14 @@ def get_link_prediction_args(is_evaluation: bool = False):
     parser.add_argument('--num_epochs', type=int, default=100, help='number of epochs')
     parser.add_argument('--optimizer', type=str, default='Adam', choices=['SGD', 'Adam', 'RMSprop'], help='name of optimizer')
     parser.add_argument('--weight_decay', type=float, default=0.0, help='weight decay')
-    parser.add_argument('--patience', type=int, default=20, help='patience for early stopping')
+    parser.add_argument('--patience', type=int, default=2, help='patience for early stopping')
     parser.add_argument('--val_ratio', type=float, default=0.15, help='ratio of validation set')
     parser.add_argument('--test_ratio', type=float, default=0.15, help='ratio of test set')
-    parser.add_argument('--num_runs', type=int, default=5, help='number of runs')
+    parser.add_argument('--num_runs', type=int, default=3, help='number of runs')
     parser.add_argument('--test_interval_epochs', type=int, default=10, help='how many epochs to perform testing once')
     parser.add_argument('--negative_sample_strategy', type=str, default='historical', choices=['random', 'historical', 'inductive'],
                         help='strategy for the negative edge sampling')
-    parser.add_argument('--use_feature', type=str, default='no_feature', help='whether to use text embeddings as feature')
+    parser.add_argument('--use_feature', type=str, default='', help='whether to use text embeddings as feature')
     parser.add_argument('--load_best_configs', action='store_true', default=False, help='whether to load the best configurations')
 
     try:
@@ -274,10 +274,10 @@ def get_node_classification_args():
     parser.add_argument('--num_epochs', type=int, default=100, help='number of epochs')
     parser.add_argument('--optimizer', type=str, default='Adam', choices=['SGD', 'Adam', 'RMSprop'], help='name of optimizer')
     parser.add_argument('--weight_decay', type=float, default=0.0, help='weight decay')
-    parser.add_argument('--patience', type=int, default=20, help='patience for early stopping')
+    parser.add_argument('--patience', type=int, default=2, help='patience for early stopping')
     parser.add_argument('--val_ratio', type=float, default=0.15, help='ratio of validation set')
     parser.add_argument('--test_ratio', type=float, default=0.15, help='ratio of test set')
-    parser.add_argument('--num_runs', type=int, default=5, help='number of runs')
+    parser.add_argument('--num_runs', type=int, default=3, help='number of runs')
     parser.add_argument('--test_interval_epochs', type=int, default=10, help='how many epochs to perform testing once')
     parser.add_argument('--load_best_configs', action='store_true', default=False, help='whether to load the best configurations')
 
@@ -326,10 +326,10 @@ def get_node_classification_args():
     parser.add_argument('--num_epochs', type=int, default=100, help='number of epochs')
     parser.add_argument('--optimizer', type=str, default='Adam', choices=['SGD', 'Adam', 'RMSprop'], help='name of optimizer')
     parser.add_argument('--weight_decay', type=float, default=0.0, help='weight decay')
-    parser.add_argument('--patience', type=int, default=20, help='patience for early stopping')
+    parser.add_argument('--patience', type=int, default=2, help='patience for early stopping')
     parser.add_argument('--val_ratio', type=float, default=0.15, help='ratio of validation set')
     parser.add_argument('--test_ratio', type=float, default=0.15, help='ratio of test set')
-    parser.add_argument('--num_runs', type=int, default=5, help='number of runs')
+    parser.add_argument('--num_runs', type=int, default=3, help='number of runs')
     parser.add_argument('--test_interval_epochs', type=int, default=10, help='how many epochs to perform testing once')
     parser.add_argument('--load_best_configs', action='store_true', default=False, help='whether to load the best configurations')
 
@@ -406,7 +406,7 @@ def load_node_classification_best_configs(args: argparse.Namespace):
 
 
 
-def get_edge_classification_args():
+def get_edge_classification_args(is_evaluation: bool = False):
     """
     get the args for the node classification task
     :return:
@@ -415,8 +415,8 @@ def get_edge_classification_args():
     parser = argparse.ArgumentParser('Interface for the node classification task')
     parser.add_argument('--dataset_name', type=str, help='dataset to be used', default='ICEWS1819',
                         choices=['Amazon_movies', 'Enron', 'GDELT', 'Googlemap_CT', 'ICEWS1819', 'Stack_elec', 'Stack_english', 'Stack_ubuntu', 'Yelp', 'Cite_HepTH'])
-    parser.add_argument('--batch_size', type=int, default=200, help='batch size') # GDELT, ICEWS1819, 
-    parser.add_argument('--model_name', type=str, default='DyGFormer', help='name of the model',
+    parser.add_argument('--batch_size', type=int, default=1024, help='batch size') # GDELT, ICEWS1819, 
+    parser.add_argument('--model_name', type=str, default='JODIE', help='name of the model',
                         choices=['JODIE', 'DyRep', 'TGAT', 'TGN', 'CAWN', 'TCL', 'GraphMixer', 'DyGFormer'])
     parser.add_argument('--gpu', type=int, default=0, help='number of gpu to use')
     parser.add_argument('--num_neighbors', type=int, default=20, help='number of neighbors to sample for each node')
@@ -439,12 +439,12 @@ def get_edge_classification_args():
     parser.add_argument('--num_epochs', type=int, default=100, help='number of epochs')
     parser.add_argument('--optimizer', type=str, default='Adam', choices=['SGD', 'Adam', 'RMSprop'], help='name of optimizer')
     parser.add_argument('--weight_decay', type=float, default=0.0, help='weight decay')
-    parser.add_argument('--patience', type=int, default=20, help='patience for early stopping')
+    parser.add_argument('--patience', type=int, default=2, help='patience for early stopping')
     parser.add_argument('--val_ratio', type=float, default=0.15, help='ratio of validation set')
     parser.add_argument('--test_ratio', type=float, default=0.15, help='ratio of test set')
-    parser.add_argument('--num_runs', type=int, default=5, help='number of runs')
+    parser.add_argument('--num_runs', type=int, default=3, help='number of runs')
     parser.add_argument('--test_interval_epochs', type=int, default=10, help='how many epochs to perform testing once')
-    parser.add_argument('--use_feature', type=str, default='no_feature', help='whether to use text embeddings as feature')
+    parser.add_argument('--use_feature', type=str, default='', help='whether to use text embeddings as feature')
     parser.add_argument('--load_best_configs', action='store_true', default=False, help='whether to load the best configurations')
 
     try:
