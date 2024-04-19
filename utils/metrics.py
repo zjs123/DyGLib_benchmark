@@ -109,4 +109,12 @@ def get_edge_classification_metrics(predicts: torch.Tensor, labels: torch.Tensor
     R_macro = recall_score(labels, predicts, average="macro")
     F_macro = f1_score(labels, predicts, average="macro")
 
-    return {'p_macro': P_macro, 'R_macro': R_macro, 'F_macro': F_macro}
+    P_micro = precision_score(labels, predicts, average="micro")
+    R_micro = recall_score(labels, predicts, average="micro")
+    F_micro = f1_score(labels, predicts, average="micro")
+
+    P_weight = precision_score(labels, predicts, average="weighted")
+    R_weight = recall_score(labels, predicts, average="weighted")
+    F_weight = f1_score(labels, predicts, average="weighted")
+
+    return {'p_macro': P_macro, 'R_macro': R_macro, 'F_macro': F_macro, 'p_micro': P_micro, 'R_micro': R_micro, 'F_micro': F_micro, 'p_weight': P_weight, 'R_weight': R_weight, 'F_weight': F_weight}
