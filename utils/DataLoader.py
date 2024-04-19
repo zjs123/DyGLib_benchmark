@@ -112,7 +112,7 @@ def get_link_prediction_data(dataset_name: str, val_ratio: float, test_ratio: fl
     src_node_ids = graph_df.u.values.astype(np.longlong)
     dst_node_ids = graph_df.i.values.astype(np.longlong)
     node_interact_times = graph_df.ts.values.astype(np.float64)
-    edge_ids = graph_df.r.values.astype(np.longlong)
+    edge_ids = graph_df.idx.values.astype(np.longlong)
     labels = graph_df.label.values
 
     full_data = Data(src_node_ids=src_node_ids, dst_node_ids=dst_node_ids, node_interact_times=node_interact_times, edge_ids=edge_ids, labels=labels)
